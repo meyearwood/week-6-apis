@@ -46,38 +46,54 @@ function ajaxQuery() {
 	queryUrl = ('https://api.giphy.com/v1/gifs/search?q=' + subject + limit + apiKey);
 	console.log(queryUrl);
 
+	// $.ajax({}).done().fail();
+
 	$.ajax({url: queryUrl, method: 'GET'})
-	.done(function(response) {
-		console.log(response);
-		$('.col-gif').css({'height': ''});
-		imgHeightArr = [];
-
-		for(i = 0; i < response.data.length; i++) {
-
-			imgHeightArr.push(response.data[i].images.original.height/response.data[i].images.original.width);
-
-			respCol = $('<div class="col col-xs-3 col-gif"><img class="gif-thumb" alt="" src="' +
-				response.data[i].images.original_still.url
-				+ '" data-state="still" data-animate="' +
-				response.data[i].images.original.url
-				+ '" data-still="' +
-				response.data[i].images.original_still.url
-				+ '" /><br /></div>');
-
-			$('.gif-thumb').on('load', imgHeight);
-			hasRating = response.data[i].rating.toUpperCase();
-			if(response.data[i].rating === '') {
-				respCol.append('<span>rating: NR</span>');
-			} else {
-				respCol.append('<span>rating: ' + hasRating + '</span>');
-			}
-			$('.row-gif').append(respCol);
-    	}
-			$('.gif-thumb').on('click', gifClick); // end img on click
-
-	});
+	.done(handleAjaxQuerySuccess)
+	.fail(handleAjaxQueryError);
 
 }
+
+function handleAjaxQueryError(xhr, exception) {
+	console.log('xhr.status: ', xhr.status);
+	console.log('exception: ', exception);
+
+	if (xhr.status === 0) {
+		console.log('Not connected to internet');
+	}
+}
+
+function handleAjaxQuerySuccess(response) {
+	console.log(response);
+	$('.col-gif').css({'height': ''});
+	imgHeightArr = [];
+
+	for(i = 0; i < response.data.length; i++) {
+
+		imgHeightArr.push(response.data[i].images.original.height/response.data[i].images.original.width);
+
+		respCol = $('<div class="col col-xs-3 col-gif"><img class="gif-thumb" alt="" src="' +
+			response.data[i].images.original_still.url
+			+ '" data-state="still" data-animate="' +
+			response.data[i].images.original.url
+			+ '" data-still="' +
+			response.data[i].images.original_still.url
+			+ '" /><br /></div>');
+
+		$('.gif-thumb').on('load', imgHeight);
+		hasRating = response.data[i].rating.toUpperCase();
+		if(response.data[i].rating === '') {
+			respCol.append('<span>rating: NR</span>');
+		} else {
+			respCol.append('<span>rating: ' + hasRating + '</span>');
+		}
+		$('.row-gif').append(respCol);
+	}
+
+	$('.gif-thumb').on('click', gifClick); // end img on click
+}
+
+
 function newButton(event) {
 	searchVal = $('#search').val().trim();
 	console.log(searchVal);
